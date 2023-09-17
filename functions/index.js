@@ -14,14 +14,8 @@ const { ChatOpenAI } = require('langchain/chat_models/openai');
 const { HumanMessage, SystemMessage } = require('langchain/schema');
 
 admin.initializeApp();
-const model = new ChatOpenAI({
-	model: 'gpt-3.5-turbo-0613',
-	temperature: 0,
-	openAIApiKey: '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' // In Node.js defaults to process.env.OPENAI_API_KEY
-});
 
 function addNote(args) {
-	admin.firestore().collection('notes').doc(args.title).set({ content: args.content });
 	return {
 		response: `Added note with title: ${args.title} and content: ${args.content}`,
 		title: args.title,
@@ -36,6 +30,12 @@ const available_functions = {
 exports.helloWorld = onRequest(
 	{ timeoutSeconds: 15, cors: true, maxInstances: 10 },
 	async (request, response) => {
+		const model = new ChatOpenAI({
+			model: 'gpt-3.5-turbo-0613',
+			temperature: 0,
+			openAIApiKey: process.env.OPENAI_KEY // In Node.js defaults to process.env.OPENAI_API_KEY
+		});
+
 		logger.info('Hello logs!' + JSON.stringify(request.body), { structuredData: true });
 
 		const gptResponse = await model.predictMessages(
